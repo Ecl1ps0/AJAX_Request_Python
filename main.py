@@ -4,4 +4,4 @@ URL = 'https://zakup.sk.kz/eprocsearch/api/external/4dv3rts/filter?size=10&page=
 FILE_PATH = 'items.json'
 
 a = Saver(URL, FILE_PATH)
-a.save_to_json()
+a.save_to_database()
