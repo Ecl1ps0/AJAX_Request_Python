@@ -11,7 +11,7 @@ class Item:
         # self.cur.execute("""DROP TABLE items""")
         self.cur.execute(
             """
-            CREATE TABLE IF NOT EXIST items(
+            CREATE TABLE IF NOT EXISTS items(
                 number BIGINT PRIMARY KEY,
                 name TEXT,
                 tender_type TEXT,
@@ -21,7 +21,7 @@ class Item:
             """
         )
 
-    def insert(self, item: dict) -> None:
+    def insert(self, item: tuple) -> None:
         self.cur.execute("""INSERT OR IGNORE INTO items VALUES(?, ?, ?, ?, ?)""", item)
         self.con.commit()
 
