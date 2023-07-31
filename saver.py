@@ -1,9 +1,12 @@
 import json
 import os
 import re
+from typing import Generator
+
 import pandas as pd
 
 from product_parser import ProductParser
+from models import Item
 
 
 class Saver:
@@ -11,7 +14,7 @@ class Saver:
         self.parser = ProductParser(url)
         self.file_path = file_path
 
-    def save_json(self) -> None:
+    def format_data(self) -> Generator[dict, None, None]:
         for item in self.parser.parse_items():
             data = {
                 'number': item['number'],
@@ -28,17 +31,22 @@ class Saver:
             data = {
                 **data,
                 'price': item['sumTruNoNds'],
-                'days_remain': str(days_remain.days)
+                'days_remain': days_remain.days
             }
+
+            yield data
+
+    def save_to_json(self) -> None:
+        for item in self.format_data():
 
             if not os.path.exists(self.file_path):
                 with open(self.file_path, 'w') as outfile:
-                    json.dump([data], outfile, indent=6)
+                    json.dump([item], outfile, indent=6)
             else:
                 with open(self.file_path, 'r') as outfile:
                     existed_data = json.load(outfile)
 
-                existed_data.append(data)
+                existed_data.append(item)
 
                 with open(self.file_path, 'w') as outfile:
                     json.dump(existed_data, outfile, indent=6)
