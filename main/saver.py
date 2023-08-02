@@ -1,12 +1,12 @@
 import json
 import os
 import re
+from datetime import datetime
 from typing import Generator
-
-import pandas as pd
 
 from product_parser import ProductParser
 from models import Item
+from config import format_string
 
 
 class Saver:
@@ -27,7 +27,7 @@ class Saver:
             elif re.search(r'^OT', item['tenderType']):
                 data['tender_type'] = "Открытый тендер"
 
-            days_remain = pd.to_datetime(item['acceptanceEndDateTime']) - pd.to_datetime(item['acceptanceBeginDateTime'])
+            days_remain = datetime.strptime(item['acceptanceEndDateTime'], format_string) - datetime.strptime(item['acceptanceBeginDateTime'], format_string)
 
             data = {
                 **data,
@@ -49,7 +49,7 @@ class Saver:
             elif re.search(r'^OT', item['tenderType']):
                 data += ("Открытый тендер",)
 
-            days_remain = pd.to_datetime(item['acceptanceEndDateTime']) - pd.to_datetime(item['acceptanceBeginDateTime'])
+            days_remain = datetime.strptime(item['acceptanceEndDateTime'], format_string) - datetime.strptime(item['acceptanceBeginDateTime'], format_string)
 
             data += (
                 item['sumTruNoNds'],
