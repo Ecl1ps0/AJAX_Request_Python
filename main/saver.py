@@ -1,65 +1,16 @@
 import json
 import os
-import re
-from datetime import datetime
-from typing import Generator
 
-from product_parser import ProductParser
 from models import Item
-from config import format_string
 
 
 class Saver:
-    def __init__(self, url: str, file_path: str):
-        self.parser = ProductParser(url)
+    def __init__(self, file_path: str):
         self.file_path = file_path
-        self.db = Item()
+        self.db = Item(file_path)
 
-    def format_data_to_dict(self) -> Generator[dict, None, None]:
-        for item in self.parser.parse_items():
-            data = {
-                'number': item['number'],
-                'name': item['nameRu'],
-            }
-
-            if re.search(r'^CP', item['tenderType']):
-                data['tender_type'] = "Запрос ценовых предложений"
-            elif re.search(r'^OT', item['tenderType']):
-                data['tender_type'] = "Открытый тендер"
-
-            days_remain = datetime.strptime(item['acceptanceEndDateTime'], format_string) - datetime.strptime(item['acceptanceBeginDateTime'], format_string)
-
-            data = {
-                **data,
-                'price': item['sumTruNoNds'],
-                'days_remain': days_remain.days
-            }
-
-            yield data
-
-    def format_data_to_tuple(self) -> Generator[tuple, None, None]:
-        for item in self.parser.parse_items():
-            data = (
-                item['number'],
-                item['nameRu'],
-            )
-
-            if re.search(r'^CP', item['tenderType']):
-                data += ("Запрос ценовых предложений",)
-            elif re.search(r'^OT', item['tenderType']):
-                data += ("Открытый тендер",)
-
-            days_remain = datetime.strptime(item['acceptanceEndDateTime'], format_string) - datetime.strptime(item['acceptanceBeginDateTime'], format_string)
-
-            data += (
-                item['sumTruNoNds'],
-                days_remain.days
-            )
-
-            yield data
-
-    def save_to_json(self) -> None:
-        for item in self.format_data_to_dict():
+    def save_to_json(self, items: list[dict]) -> None:
+        for item in items:
             if not os.path.exists(self.file_path):
                 with open(self.file_path, 'w') as outfile:
                     json.dump([item], outfile, indent=6)
@@ -72,8 +23,8 @@ class Saver:
                 with open(self.file_path, 'w') as outfile:
                     json.dump(existed_data, outfile, indent=6)
 
-    def save_to_database(self) -> None:
-        for item in self.format_data_to_tuple():
+    def save_to_database(self, items: list[tuple]) -> None:
+        for item in items:
             self.db.insert(item)
 
         for item in self.db.get_all():
