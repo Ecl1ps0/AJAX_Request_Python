@@ -44,3 +44,5 @@ json_data = {
     'advertStatus': 'PUBLISHED',
     'lotStatus': 'PUBLISHED',
 }
+
+format_string = "%Y-%m-%dT%H:%M:%SZ"
