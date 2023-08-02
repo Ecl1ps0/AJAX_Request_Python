@@ -3,7 +3,7 @@ import sqlite3
 
 class Item:
     def __init__(self):
-        self.con = sqlite3.connect("items.db")
+        self.con = sqlite3.connect("../items.db")
         self.cur = self.con.cursor()
         self.create_table()
 
